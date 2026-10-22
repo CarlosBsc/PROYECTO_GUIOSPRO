@@ -1,0 +1,527 @@
+
+{% extends "evaluacion/dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Evaluación de software | GUIOS PRO{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'evaluacion/style.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- EVALUACIÓN ORIGINAL DE GUIOSPRO -->
+
+{% if error %}
+    <div class="alert alert-warning">
+        {{ error }}
+    </div>
+{% endif %}
+
+<!-- PESTAÑAS DE EVALUACIÓN -->
+<ul class="nav nav-tabs mb-3" id="sections" role="tablist">
+
+    <li class="nav-item">
+        <button
+            class="nav-link {% if tab == 'factores' %}active{% endif %}"
+            data-bs-toggle="tab"
+            data-bs-target="#factores"
+            type="button"
+        >
+            Paso 1 y 2. Obtención de factores relevantes
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button
+            class="nav-link {% if tab == 'subfactores' %}active{% endif %}"
+            data-bs-toggle="tab"
+            data-bs-target="#subfactores"
+            type="button"
+        >
+            Paso 3 y 4. Obtención de factores ponderados
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button
+            class="nav-link {% if tab == 'resultados' %}active{% endif %}"
+            data-bs-toggle="tab"
+            data-bs-target="#resultados"
+            type="button"
+        >
+            Paso 5 y 6. Evaluación y recomendación sobre la adopción
+        </button>
+    </li>
+
+</ul>
+
+<div class="tab-content">
+
+    <!-- ===================================================== -->
+    <!-- PASO 1 Y 2: OBTENCIÓN DE FACTORES RELEVANTES -->
+    <!-- ===================================================== -->
+
+    <section
+        class="tab-pane fade {% if tab == 'factores' %}show active{% endif %}"
+        id="factores"
+    >
+
+        <h5>Paso 1 y 2. Obtención de factores relevantes</h5>
+
+        <p>
+            El objetivo de este paso es determinar qué factores resultan
+            relevantes para el análisis de la adopción. Para ello, usted
+            deberá evaluar la importancia que tienen los factores para su
+            organización. Asimismo, deberá clasificar aquellos que pueden
+            ser, de acuerdo al alcance de su impacto, internos o externos.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input type="hidden" name="action" value="factors">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover align-middle bg-white">
+
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Factor</th>
+                            <th>Imp. Sugerida</th>
+                            <th>Evaluación</th>
+                            <th>Imp. Decisor</th>
+                            <th>Imp. Relativa</th>
+                            <th>Alcance</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for row in rows %}
+
+                            <tr>
+
+                                <td>{{ row.name }}</td>
+
+                                <td>{{ row.suggested }}</td>
+
+                                <td>
+                                    <input
+                                        class="form-range rating"
+                                        type="range"
+                                        min="1"
+                                        max="4"
+                                        step="1"
+                                        name="decisor_{{ row.id }}"
+                                        value="{{ row.decisor }}"
+                                        data-row="{{ row.id }}"
+                                        data-suggested="{{ row.suggested }}"
+                                        aria-label="Evaluación {{ row.name }}"
+                                    >
+                                </td>
+
+                                <td>
+                                    <span id="decisor-label-{{ row.id }}">
+                                        {{ row.decisor_label }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span id="relative-label-{{ row.id }}">
+                                        {{ row.relative }}
+                                    </span>
+                                </td>
+
+                                <td>
+
+                                    {% if row.scope == 'Ambos' %}
+
+                                        <select
+                                            class="form-select"
+                                            name="scope_{{ row.id }}"
+                                        >
+
+                                            <option
+                                                value="Interno"
+                                                {% if row.scope_selected == 'Interno' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                Interno
+                                            </option>
+
+                                            <option
+                                                value="Externo"
+                                                {% if row.scope_selected == 'Externo' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                Externo
+                                            </option>
+
+                                        </select>
+
+                                    {% else %}
+
+                                        {{ row.scope }}
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <button class="btn btn-primary" type="submit">
+                Guardar evaluación y continuar
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- PASO 3 Y 4: OBTENCIÓN DE FACTORES PONDERADOS -->
+    <!-- ===================================================== -->
+
+    <section
+        class="tab-pane fade {% if tab == 'subfactores' %}show active{% endif %}"
+        id="subfactores"
+    >
+
+        <h5>Paso 3 y 4. Obtención de factores ponderados</h5>
+
+        <p>
+            El objetivo de este paso es establecer la relevancia que
+            tienen los subfactores que componen a los factores que
+            resultaron relevantes del paso anterior. Seleccione el
+            factor en la lista desplegable y cuando termine de
+            establecer la importancia por los subfactores, elija
+            guardar en el botón correspondiente.
+        </p>
+
+        {% if selected %}
+
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+
+                <input type="hidden" name="action" value="subfactors">
+
+                <div class="row align-items-end g-2 mb-3">
+
+                    <div class="col-lg-8">
+
+                        <label
+                            for="factor_id"
+                            class="form-label fw-semibold"
+                        >
+                            Factor:
+                        </label>
+
+                        <select
+                            class="form-select"
+                            name="factor_id"
+                            id="factor_id"
+                            onchange="window.location.href='/?factor_id='+this.value+'#subfactores'"
+                        >
+
+                            {% for row in relevant %}
+
+                                <option
+                                    value="{{ row.id }}"
+                                    {% if row.id == selected.id %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ row.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <div class="col">
+
+                        <button type="submit" class="btn btn-primary">
+                            Guardar
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered align-middle bg-white">
+
+                        <thead class="table-secondary">
+
+                            <tr>
+                                <th>Subfactor</th>
+                                <th>Evaluación</th>
+                                <th>Resultado</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for name in selected.subfactors %}
+
+                                <tr>
+
+                                    <td>{{ name }}</td>
+
+                                    <td>
+
+                                        <input
+                                            class="form-range subrating"
+                                            type="range"
+                                            min="1"
+                                            max="4"
+                                            step="1"
+                                            name="weight_{{ selected.id }}_{{ forloop.counter0 }}"
+                                            value="{% for value in selected.weights %}{% if forloop.counter0 == forloop.parentloop.counter0 %}{{ value }}{% endif %}{% endfor %}"
+                                            data-index="{{ forloop.counter0 }}"
+                                        >
+
+                                    </td>
+
+                                    <td>
+
+                                        <span
+                                            class="subresult"
+                                            id="subresult-{{ forloop.counter0 }}"
+                                        ></span>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </form>
+
+        {% else %}
+
+            <div class="alert alert-info">
+                No hay factores relevantes con la evaluación actual.
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- PASO 5 Y 6: EVALUACIÓN Y RECOMENDACIÓN -->
+    <!-- ===================================================== -->
+
+    <section
+        class="tab-pane fade {% if tab == 'resultados' %}show active{% endif %}"
+        id="resultados"
+    >
+
+        <h5>Paso 5 y 6. Evaluación y recomendación sobre la adopción</h5>
+
+        <p>
+            En este paso se muestra la clasificación FODA de cada
+            factor atendiendo a su importancia global y alcance
+            para la organización. Si un factor no contiene valores,
+            no fue considerado relevante en el paso 1 y 2, o
+            todavía no se evaluaron sus subfactores.
+        </p>
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered align-middle bg-white">
+
+                <thead class="table-secondary">
+
+                    <tr>
+                        <th>Factor</th>
+                        <th>Ponderación media del factor</th>
+                        <th>Alcance</th>
+                        <th>FODA</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for row in rows %}
+
+                        <tr>
+
+                            <td>{{ row.name }}</td>
+
+                            <td>
+                                {% if row.score != None %}
+                                    {{ row.score|floatformat:1 }}
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if row.score != None %}
+                                    {{ row.scope_selected }}
+                                {% endif %}
+                            </td>
+
+                            <td class="{% if row.foda == 'Fortaleza' or row.foda == 'Oportunidad' %}table-success{% elif row.foda == 'Debilidad' or row.foda == 'Amenaza' %}table-danger{% endif %}">
+
+                                {% if row.foda %}
+                                    {{ row.foda }}
+                                {% else %}
+                                    Subfactores no evaluados.
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="action"
+                value="recommendation"
+            >
+
+            <button class="btn btn-primary" type="submit">
+                Ver recomendación
+            </button>
+
+        </form>
+
+        {% if recommendation != None %}
+
+            <div class="alert mt-3 {% if 'Recomendación C:' in recommendation %}alert-danger{% elif 'Recomendación B:' in recommendation %}alert-warning{% else %}alert-success{% endif %}">
+
+                {{ recommendation|default:'Todavía no existen subfactores evaluados.' }}
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+<!-- REINICIAR EVALUACIÓN ORIGINAL -->
+
+<form
+    method="post"
+    class="mt-4"
+    onsubmit="return confirm('¿Reiniciar las evaluaciones?')"
+>
+    {% csrf_token %}
+
+    <input type="hidden" name="action" value="reset">
+
+    <button class="btn btn-outline-secondary btn-sm">
+        Reiniciar evaluación
+    </button>
+
+</form>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+    const levels = [
+        'Irrelevante',
+        'Opcional',
+        'Importante',
+        'Fundamental'
+    ];
+
+    const sublevels = [
+        'No cumple el requisito',
+        'Desconozco si cumple requisito',
+        'Cumple parcialmente el requisito',
+        'Cumple el requisito'
+    ];
+
+    document.querySelectorAll('.rating').forEach(el => {
+        const update = () => {
+            const i = el.dataset.row;
+            const n = Number(el.value);
+            const suggested = Number(el.dataset.suggested);
+
+            document.getElementById('decisor-label-' + i).textContent =
+                levels[n - 1];
+
+            document.getElementById('relative-label-' + i).textContent =
+                levels[Math.floor((suggested - 1 + n - 1) / 2)];
+        };
+
+        el.addEventListener('input', update);
+        update();
+    });
+
+    document.querySelectorAll('.subrating').forEach(el => {
+        const update = () => {
+            document.getElementById(
+                'subresult-' + el.dataset.index
+            ).textContent = sublevels[Number(el.value) - 1];
+        };
+
+        el.addEventListener('input', update);
+        update();
+    });
+
+    const fromHash = () => {
+        const name = location.hash.slice(1);
+        const target = document.querySelector(
+            '[data-bs-target="#' + name + '"]'
+        );
+
+        if (target) {
+            bootstrap.Tab.getOrCreateInstance(target).show();
+        }
+    };
+
+    window.addEventListener('load', fromHash);
+
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(button =>
+        button.addEventListener('shown.bs.tab', ev => {
+            history.replaceState(
+                null,
+                '',
+                ev.target.dataset.bsTarget
+            );
+        })
+    );
+</script>
+
+{% endblock %}

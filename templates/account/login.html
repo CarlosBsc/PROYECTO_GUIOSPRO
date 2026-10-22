@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Iniciar sesión - GUIOS PRO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+{# Elige la versión: theme-pro (mejorada) o theme-exact (idéntica a la imagen) #}
+<body class="theme-pro">
+<main class="row g-0 min-vh-100 mx-0">
+
+    <section class="auth-left col-12">
+        <div class="brand">
+            <span class="brand-icon"><i class="bi bi-lightning-charge-fill"></i></span>
+            <span>GUIOS <small>PRO</small></span>
+        </div>
+
+        <div class="left-content">
+            <div class="left-tag">Plataforma académica</div>
+            <h1 class="left-title">Decide qué software libre adoptar, con evidencia.</h1>
+            <p class="left-subtitle d-none d-lg-block">Evalúa factores y subfactores, obtén tu análisis FODA y una recomendación clara de adopción.</p>
+            <ul class="feature-list pro-only list-unstyled d-none d-lg-grid">
+                <li><i class="bi bi-diagram-3"></i>Factores y subfactores</li>
+                <li><i class="bi bi-grid-3x3-gap"></i>Análisis FODA</li>
+                <li><i class="bi bi-patch-check"></i>Recomendación de adopción</li>
+            </ul>
+        </div>
+
+        <div class="left-footer d-none d-lg-block">
+            <span class="dot"></span>Evaluación trazable · Literatura científica · Decisiones claras
+        </div>
+
+        <div class="circle-one" aria-hidden="true"></div>
+        <div class="circle-two" aria-hidden="true"></div>
+    </section>
+
+    <section class="auth-right col-12">
+        <div class="auth-card">
+            <div class="form-tag">Plataforma de evaluación</div>
+            <h2 class="form-title">Te damos la bienvenida</h2>
+            <p class="form-subtitle">Ingresa a tu espacio de evaluación.</p>
+
+            <nav class="auth-tabs">
+                <a href="{% url 'account_login' %}" class="active" aria-current="page">Iniciar sesión</a>
+                <a href="{% url 'account_signup' %}">Crear cuenta</a>
+            </nav>
+
+            <form method="post" action="{% url 'account_login' %}">
+                {% csrf_token %}
+                <!-- MENSAJE DE CREDENCIALES INCORRECTAS -->
+                <!-- MENSAJE DE CREDENCIALES INCORRECTAS -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger d-flex align-items-start gap-2 mb-3 login-error"
+                    role="alert"
+                    style="background-color: #fff1f2 !important;
+                            border: 1px solid #fecdd3 !important;
+                            border-radius: 12px;
+                            padding: 14px 16px !important;
+                            color: #be123c !important;">
+
+                    <i class="bi bi-exclamation-circle-fill"
+                    style="color: #be123c; font-size: 18px;"></i>
+
+                    <span style="color: #be123c;">
+                        Correo electrónico o contraseña incorrectos.
+                        Verifica tus datos e inténtalo nuevamente.
+                    </span>
+                </div>
+            {% endif %}
+
+                <div class="mb-3">
+                    <label for="{{ form.login.id_for_label }}" class="form-label">Correo electrónico</label>
+                    <input type="email" name="{{ form.login.name }}" id="{{ form.login.id_for_label }}"
+                           class="form-control{% if form.login.errors %} is-invalid{% endif %}"
+                           placeholder="nombre@organizacion.com" autocomplete="email"
+                           value="{{ form.login.value|default:'' }}" required>
+                    {{ form.login.errors }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">Contraseña</label>
+                    <div class="position-relative">
+                        <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}"
+                               class="form-control pw{% if form.password.errors %} is-invalid{% endif %}"
+                               placeholder="********" autocomplete="current-password" required>
+                        <button type="button" class="pw-toggle pro-only" aria-label="Mostrar contraseña"><i class="bi bi-eye"></i></button>
+                    </div>
+                    {{ form.password.errors }}
+                </div>
+                {% comment %}
+                <div class="extra-link"><a href="{% url 'account_reset_password' %}">¿Olvidaste tu contraseña?</a></div>
+                {% endcomment %}
+                {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                {% endif %}
+                <button type="submit" class="auth-btn">Iniciar sesión <i class="bi bi-arrow-right ms-1"></i></button>
+            </form>
+
+            <p class="help-text">Accede con tu correo y contraseña registrados.</p>
+        </div>
+    </section>
+
+</main>
+<script>
+document.querySelectorAll('.pw-toggle').forEach(function (b) {
+    b.addEventListener('click', function () {
+        var i = b.previousElementSibling, show = i.type === 'password';
+        i.type = show ? 'text' : 'password';
+        b.firstElementChild.className = 'bi bi-eye' + (show ? '-slash' : '');
+        b.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
+});
+</script>
+</body>
+</html>

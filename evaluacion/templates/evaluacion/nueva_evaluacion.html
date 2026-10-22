@@ -1,0 +1,137 @@
+
+{% extends "evaluacion/dashboard_base.html" %}
+
+{% block title %}Nueva evaluación | GUIOS PRO{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <p class="page-eyebrow">NUEVA EVALUACIÓN</p>
+    <h1>Comienza una nueva evaluación</h1>
+    <p>Registra los datos base para iniciar el análisis.</p>
+</div>
+
+<form method="post" action="{% url 'evaluacion:nueva_evaluacion' %}">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <div class="row g-4">
+
+        <!-- DATOS DE LA ORGANIZACIÓN -->
+        <div class="col-12 col-xl-6">
+
+            <section class="evaluation-card h-100">
+
+                <div class="evaluation-card-header">
+                    <span class="step-icon">01</span>
+
+                    <div>
+                        <h2>Datos de la organización</h2>
+                        <p>¿Quién utilizará el software?</p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+
+                    <label for="organizacion" class="form-label">
+                        Organización
+                    </label>
+
+                    {{ form.organizacion }}
+
+                    {{ form.organizacion.errors }}
+
+                </div>
+
+            </section>
+
+        </div>
+
+        <!-- SOFTWARE A EVALUAR -->
+        <div class="col-12 col-xl-6">
+
+            <section class="evaluation-card h-100">
+
+                <div class="evaluation-card-header">
+                    <span class="step-icon purple">02</span>
+
+                    <div>
+                        <h2>Software a evaluar</h2>
+                        <p>Cuéntanos sobre la solución.</p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+
+                    <label for="software" class="form-label">
+                        Nombre del software
+                    </label>
+
+                    {{ form.software }}
+
+                    {{ form.software.errors }}
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label for="categoria" class="form-label">
+                        Categoría
+                    </label>
+
+                    {{ form.categoria }}
+
+                    {{ form.categoria.errors }}
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label for="descripcion" class="form-label">
+                        Descripción
+                        <span class="optional-label">Opcional</span>
+                    </label>
+
+                    {{ form.descripcion }}
+
+                    {{ form.descripcion.errors }}
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+    <div class="evaluation-footer">
+
+        <div class="evaluation-actions">
+
+            <a
+                href="{% url 'evaluacion:panel' %}"
+                class="btn-cancelar"
+                style="text-decoration: none;"
+            >
+                <i class="bi bi-x-lg"></i>
+                Cancelar
+            </a>
+
+            <button type="submit" class="btn-continuar">
+                <i class="bi bi-floppy"></i>
+                Guardar y continuar
+                <i class="bi bi-arrow-right"></i>
+            </button>
+
+        </div>
+
+    </div>
+
+</form>
+
+{% endblock %}

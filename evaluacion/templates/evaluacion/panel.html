@@ -1,0 +1,54 @@
+
+{% extends "evaluacion/dashboard_base.html" %}
+
+{% block title %}Panel | GUIOS PRO{% endblock %}
+
+{% block content %}
+
+<!-- ENCABEZADO DEL PANEL -->
+<div class="panel-header">
+
+    <div>
+        <p class="page-eyebrow">PANEL</p>
+
+        <h1 class="panel-title">
+            Mis evaluaciones
+        </h1>
+
+        <p class="panel-subtitle">
+            Gestiona y da seguimiento a tus evaluaciones de adopción.
+        </p>
+    </div>
+
+    <a href="{% url 'evaluacion:nueva_evaluacion' %}"
+       class="btn-panel-primary">
+        <i class="bi bi-plus-lg"></i>
+        Nueva evaluación
+    </a>
+
+</div>
+
+<!-- ESTADO SIN EVALUACIONES -->
+<div class="panel-empty-state">
+
+    <div class="panel-empty-icon">
+        <i class="bi bi-clipboard2-check"></i>
+    </div>
+
+    <h2>Aún no tienes evaluaciones</h2>
+
+    <p>
+        Comienza registrando una organización y el software
+        que deseas evaluar. Aquí podrás consultar tus
+        evaluaciones y dar seguimiento a sus resultados.
+    </p>
+
+    <a href="{% url 'evaluacion:nueva_evaluacion' %}"
+       class="btn-panel-primary">
+        <i class="bi bi-plus-lg"></i>
+        Crear primera evaluación
+    </a>
+
+</div>
+
+{% endblock %}
